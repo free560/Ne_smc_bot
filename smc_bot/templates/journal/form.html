@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ module_title }} - SMC RSI BOOM & CRASH 1000 PRO{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto">
+    <h1 class="text-2xl font-bold mb-6">{{ module_title }}</h1>
+    <form method="post" enctype="multipart/form-data" class="bg-gray-900 border border-gray-800 rounded-lg p-6 space-y-4">
+        {% csrf_token %}
+        {% for field in form %}
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}<div class="text-rose-400 text-xs mt-1">{{ field.errors|join:", " }}</div>{% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="w-full py-2 rounded bg-emerald-600 hover:bg-emerald-500 text-sm font-medium">
+            Enregistrer
+        </button>
+    </form>
+</div>
+{% endblock %}

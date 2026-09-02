@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Gestion des comptes broker{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Gestion des comptes broker</h1>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="{% if message.tags == 'error' %}bg-red-900 text-red-200{% else %}bg-green-900 text-green-200{% endif %} px-4 py-3 rounded mb-4">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+<h2 class="text-xl font-semibold mb-3">Tes comptes connectés</h2>
+{% if accounts %}
+    <div class="overflow-x-auto mb-8">
+        <table class="w-full border-collapse">
+            <tr class="border-b border-gray-700">
+                <th class="text-left p-2 whitespace-nowrap">Broker</th>
+                <th class="text-left p-2 whitespace-nowrap">Type</th>
+                <th class="text-left p-2 whitespace-nowrap">Solde</th>
+                <th class="text-left p-2 whitespace-nowrap">Connecté</th>
+                <th class="text-left p-2 whitespace-nowrap"></th>
+            </tr>
+            {% for account in accounts %}
+            <tr class="border-b border-gray-700">
+                <td class="p-2 whitespace-nowrap">{{ account.get_broker_name_display }}</td>
+                <td class="p-2 whitespace-nowrap">{{ account.get_account_type_display }}</td>
+                <td class="p-2 whitespace-nowrap">{{ account.balance }}</td>
+                <td class="p-2 whitespace-nowrap">{% if account.is_connected %}✅{% else %}❌{% endif %}</td>
+                <td class="p-2 whitespace-nowrap">
+                    <form method="post" action="{% url 'disconnect_broker' account.id %}" class="inline">
+                        {% csrf_token %}
+                        <button type="submit"
+                            class="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded">
+                            Déconnecter
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% else %}
+    <p class="text-gray-400 mb-8">Aucun compte broker connecté pour l'instant.</p>
+{% endif %}
+
+<button type="button" id="show-broker-form-btn"
+    class="bg-accent text-black font-semibold px-5 py-3 rounded-lg hover:opacity-90 transition mb-6">
+    + Connecter un nouveau compte
+</button>
+
+<div id="broker-form-container" class="hidden">
+    <h2 class="text-xl font-semibold mb-3">Connecter un nouveau compte</h2>
+    <form method="post" class="bg-panel border border-gray-700 rounded-xl p-6 max-w-md">
+        {% csrf_token %}
+
+        <label for="broker_name" class="block text-sm text-gray-400 mb-1">Broker</label>
+        <select name="broker_name" id="broker_name" required
+            class="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded w-full mb-4">
+            {% for value, label in broker_choices %}
+                <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="account_type" class="block text-sm text-gray-400 mb-1">Type de compte</label>
+        <select name="account_type" id="account_type" required
+            class="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded w-full mb-4">
+            {% for value, label in account_type_choices %}
+                <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="api_token" class="block text-sm text-gray-400 mb-1">Token API</label>
+        <input type="password" name="api_token" id="api_token" required
+            class="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded w-full mb-6">
+
+        <div class="flex gap-3">
+            <button type="button" id="cancel-broker-form-btn"
+                class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 rounded-lg transition">
+                Annuler
+            </button>
+            <button type="submit"
+                class="flex-1 bg-accent text-black font-semibold py-3 rounded-lg hover:opacity-90 transition">
+                Connecter
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.getElementById('show-broker-form-btn').addEventListener('click', function () {
+    document.getElementById('broker-form-container').classList.remove('hidden');
+    this.classList.add('hidden');
+});
+
+document.getElementById('cancel-broker-form-btn').addEventListener('click', function () {
+    document.getElementById('broker-form-container').classList.add('hidden');
+    document.getElementById('show-broker-form-btn').classList.remove('hidden');
+});
+</script>
+{% endblock %}

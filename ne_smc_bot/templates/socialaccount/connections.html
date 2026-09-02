@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load socialaccount %}
+{% block title %}Comptes connectés{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Comptes tiers connectés</h1>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="bg-green-900 text-green-200 px-4 py-3 rounded mb-4">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
+{% if form.accounts %}
+    <form method="post" class="mb-8">
+        {% csrf_token %}
+        <table class="w-full border-collapse mb-4">
+            <tr class="border-b border-gray-700">
+                <th class="text-left p-2"></th>
+                <th class="text-left p-2">Provider</th>
+            </tr>
+            {% for base_account in form.accounts %}
+            <tr class="border-b border-gray-700">
+                <td class="p-2">
+                    <input type="radio" name="account" value="{{ base_account.id }}" class="accent-yellow-400">
+                </td>
+                <td class="p-2">{{ base_account.get_provider.name }} ({{ base_account }})</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
+            Déconnecter le compte sélectionné
+        </button>
+    </form>
+{% else %}
+    <p class="text-gray-400 mb-8">Aucun compte tiers connecté.</p>
+{% endif %}
+
+<h2 class="text-xl font-semibold mb-3">Ajouter un compte</h2>
+<a href="{% provider_login_url 'google' %}">
+    <button type="button" class="bg-accent text-black font-medium px-4 py-2 rounded hover:opacity-90">
+        Connecter Google
+    </button>
+</a>
+{% endblock %}

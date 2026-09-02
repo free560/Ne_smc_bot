@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Analytics - SMC RSI BOOM & CRASH 1000 PRO{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    <h1 class="text-2xl font-bold mb-6">Analytics</h1>
+
+    <h2 class="text-sm font-medium text-gray-400 mb-3">Journal de trading (trades clôturés)</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+            <div class="text-gray-500 text-xs mb-1">Win Rate</div>
+            <div class="text-2xl font-bold text-emerald-400">{{ summary.win_rate }}%</div>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+            <div class="text-gray-500 text-xs mb-1">Profit Factor</div>
+            <div class="text-2xl font-bold">{{ summary.profit_factor|default:"∞" }}</div>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+            <div class="text-gray-500 text-xs mb-1">Max Drawdown</div>
+            <div class="text-2xl font-bold text-rose-400">{{ summary.max_drawdown }}</div>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+            <div class="text-gray-500 text-xs mb-1">PnL Net</div>
+            <div class="text-2xl font-bold {% if summary.net_pnl >= 0 %}text-emerald-400{% else %}text-rose-400{% endif %}">
+                {{ summary.net_pnl }}
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-4 mb-8 text-sm">
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-4 text-center">
+            <div class="text-gray-500 text-xs mb-1">Trades totaux</div>
+            <div class="text-lg font-semibold">{{ summary.total_trades }}</div>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-4 text-center">
+            <div class="text-gray-500 text-xs mb-1">Gagnants</div>
+            <div class="text-lg font-semibold text-emerald-400">{{ summary.total_wins }}</div>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-4 text-center">
+            <div class="text-gray-500 text-xs mb-1">Perdants</div>
+            <div class="text-lg font-semibold text-rose-400">{{ summary.total_losses }}</div>
+        </div>
+    </div>
+
+    {% if summary.equity_curve %}
+    <div class="bg-gray-900 border border-gray-800 rounded-lg p-4 mb-8">
+        <h2 class="text-sm font-medium text-gray-400 mb-4">Courbe d'équité cumulée</h2>
+        <canvas id="equityChart" height="80"></canvas>
+    </div>
+    {% else %}
+    <div class="text-center py-10 text-gray-500 border border-gray-800 rounded-lg mb-8">
+        Aucun trade clôturé pour l'instant. Renseigne des trades dans le
+        <a href="{% url 'journal:list' %}" class="text-emerald-400 hover:underline">Journal</a>.
+    </div>
+    {% endif %}
+
+    <h2 class="text-sm font-medium text-gray-400 mb-3">Signaux générés (tous utilisateurs)</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+            <div class="text-gray-500 text-xs mb-1">Total</div>
+            <div class="text-xl font-bold">{{ signals_summary.total_signals }}</div>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+            <div class="text-gray-500 text-xs mb-1">BUY</div>
+            <div class="text-xl font-bold text-emerald-400">{{ signals_summary.buy_signals }}</div>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+            <div class="text-gray-500 text-xs mb-1">SELL</div>
+            <div class="text-xl font-bold text-rose-400">{{ signals_summary.sell_signals }}</div>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+            <div class="text-gray-500 text-xs mb-1">NO TRADE</div>
+            <div class="text-xl font-bold text-gray-400">{{ signals_summary.no_trade_signals }}</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{% if summary.equity_curve %}
+<script>
+const equityCurve = {{ equity_curve_json|safe }};
+new Chart(document.getElementById('equityChart'), {
+    type: 'line',
+    data: {
+        labels: equityCurve.map((_, i) => `#${i + 1}`),
+        datasets: [{
+            label: 'Équité cumulée',
+            data: equityCurve,
+            borderColor: '#34d399',
+            backgroundColor: 'rgba(52, 211, 153, 0.1)',
+            fill: true,
+            tension: 0.15,
+            pointRadius: 0,
+        }],
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: { grid: { color: '#1f2937' }, ticks: { color: '#9ca3af' } },
+            x: { grid: { color: '#1f2937' }, ticks: { color: '#9ca3af', maxTicksLimit: 12 } },
+        },
+        plugins: { legend: { labels: { color: '#d1d5db' } } },
+    },
+});
+</script>
+{% endif %}
+{% endblock %}

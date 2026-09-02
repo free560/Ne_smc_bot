@@ -1,0 +1,36 @@
+# SMC RSI BOOM & CRASH 1000 PRO BOT - Dépendances
+
+# --- Core ---
+Django>=5.0,<5.1
+python-dotenv>=1.0.0
+
+# --- Base de données ---
+# SQLite est inclus nativement dans Python, aucune dépendance nécessaire.
+
+# --- Tâches asynchrones / scanner temps réel (Phase 5+) ---
+celery>=5.3
+redis>=5.0
+django-celery-beat>=2.5
+
+# --- WebSocket Deriv API (Phase 2 - market_data) ---
+websockets>=12.0
+python-deriv-api>=0.1.6
+
+# --- Calcul indicateurs (RSI, structure de marché) ---
+pandas>=2.2
+numpy>=1.26
+
+# --- API REST (dashboard / mobile futur) ---
+djangorestframework>=3.15
+
+# --- Notifications ---
+requests>=2.31          # Telegram Bot API
+
+# --- Fichiers médias (screenshots du journal de trading) ---
+Pillow>=10.4
+
+# --- Production (à activer en déploiement) ---
+gunicorn>=22.0
+whitenoise>=6.6
+
+pip install "Django>=5.0,<5.1" python-dotenv celery redis django-celery-beat websockets python-deriv-api pandas numpy djangorestframework requests Pillow gunicorn whitenoise

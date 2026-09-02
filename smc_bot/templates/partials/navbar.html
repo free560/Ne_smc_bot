@@ -1,0 +1,23 @@
+<nav class="bg-gray-900 border-b border-gray-800 px-4 py-3 flex items-center justify-between">
+    <span class="font-bold text-lg tracking-tight text-emerald-400">
+        SMC RSI <span class="text-gray-100">BOOM & CRASH 1000</span> PRO
+    </span>
+    <div class="flex gap-4 text-sm text-gray-400 items-center">
+        <a href="/" class="hover:text-emerald-400">Dashboard</a>
+        <a href="/scanner/" class="hover:text-emerald-400">Scanner</a>
+        <a href="/signals/" class="hover:text-emerald-400">Signaux</a>
+        <a href="/journal/" class="hover:text-emerald-400">Journal</a>
+        <a href="/analytics/" class="hover:text-emerald-400">Analytics</a>
+        <a href="/risk/" class="hover:text-emerald-400">Risk</a>
+        <a href="/notifications/" class="hover:text-emerald-400">Notifications</a>
+        <a href="/settings/" class="hover:text-emerald-400">Paramètres</a>
+        {% if user.is_authenticated %}
+            <a href="{% url 'accounts:audit_log' %}" class="hover:text-emerald-400">Audit</a>
+            <span class="text-gray-600">|</span>
+            <span class="text-gray-500">{{ user.username }}</span>
+            <a href="{% url 'accounts:logout' %}" class="hover:text-rose-400">Déconnexion</a>
+        {% else %}
+            <a href="{% url 'accounts:login' %}" class="hover:text-emerald-400">Connexion</a>
+        {% endif %}
+    </div>
+</nav>

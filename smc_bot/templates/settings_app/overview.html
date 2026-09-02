@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Paramètres - SMC RSI BOOM & CRASH 1000 PRO{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <h1 class="text-2xl font-bold mb-6">Paramètres</h1>
+
+    <div class="space-y-4">
+        <a href="{% url 'risk:overview' %}"
+           class="block bg-gray-900 border border-gray-800 rounded-lg p-5 hover:border-emerald-700 transition">
+            <div class="flex justify-between items-center">
+                <div>
+                    <div class="font-medium">Risk Center</div>
+                    <div class="text-sm text-gray-500">
+                        Risque {{ risk_settings.risk_per_trade_percent }}% / trade · RR min 1:{{ risk_settings.min_risk_reward }}
+                        · {{ risk_settings.max_consecutive_losses }} pertes consécutives max
+                    </div>
+                </div>
+                <span class="text-emerald-400">→</span>
+            </div>
+        </a>
+
+        <a href="{% url 'notifications:overview' %}"
+           class="block bg-gray-900 border border-gray-800 rounded-lg p-5 hover:border-emerald-700 transition">
+            <div class="flex justify-between items-center">
+                <div>
+                    <div class="font-medium">Notifications</div>
+                    <div class="text-sm text-gray-500">
+                        Telegram {% if notification_preference.telegram_enabled %}activé{% else %}désactivé{% endif %}
+                        · Email {% if notification_preference.email_enabled %}activé{% else %}désactivé{% endif %}
+                    </div>
+                </div>
+                <span class="text-emerald-400">→</span>
+            </div>
+        </a>
+
+        <a href="{% url 'accounts:audit_log' %}"
+           class="block bg-gray-900 border border-gray-800 rounded-lg p-5 hover:border-emerald-700 transition">
+            <div class="flex justify-between items-center">
+                <div>
+                    <div class="font-medium">Compte &amp; sécurité</div>
+                    <div class="text-sm text-gray-500">Rôle : {{ profile.role }} · Journal d'audit</div>
+                </div>
+                <span class="text-emerald-400">→</span>
+            </div>
+        </a>
+
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-5">
+            <div class="font-medium mb-2">Instruments &amp; timeframes surveillés</div>
+            <div class="text-sm text-gray-500 space-y-1">
+                <div>Instruments : {{ trading_defaults.INSTRUMENTS|join:", " }}</div>
+                <div>Structure : {{ trading_defaults.STRUCTURE_TIMEFRAME }} ·
+                     Confirmation : {{ trading_defaults.CONFIRMATION_TIMEFRAME }} ·
+                     RSI : {{ trading_defaults.RSI_TIMEFRAME }} (période {{ trading_defaults.RSI_PERIOD }})</div>
+            </div>
+            <p class="text-xs text-gray-600 mt-3">
+                Ces valeurs par défaut se changent dans <code>config/settings.py</code> (TRADING_DEFAULTS).
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Risk Center - SMC RSI BOOM & CRASH 1000 PRO{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-2xl font-bold mb-6">Risk Center</h1>
+
+    {% if protection_result.should_halt %}
+    <div class="mb-6 p-4 rounded-lg bg-rose-950 border border-rose-800 text-rose-300">
+        <div class="font-semibold mb-1">⚠ STOP TRADING</div>
+        <div class="text-sm">{{ protection_result.reason }}</div>
+    </div>
+    {% endif %}
+
+    <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-5">
+            <h2 class="text-sm font-medium text-gray-400 mb-4">État du compte</h2>
+            <dl class="space-y-2 text-sm">
+                <div class="flex justify-between"><dt class="text-gray-500">Solde</dt><dd>{{ account_state.balance }}</dd></div>
+                <div class="flex justify-between"><dt class="text-gray-500">Pertes consécutives</dt><dd>{{ account_state.consecutive_losses }}</dd></div>
+                <div class="flex justify-between"><dt class="text-gray-500">Drawdown journalier</dt><dd>{{ account_state.daily_drawdown_percent|floatformat:1 }}%</dd></div>
+                <div class="flex justify-between"><dt class="text-gray-500">Statut</dt>
+                    <dd>{% if account_state.trading_halted %}<span class="text-rose-400">Arrêté</span>{% else %}<span class="text-emerald-400">Actif</span>{% endif %}</dd>
+                </div>
+            </dl>
+        </div>
+
+        <form method="post" class="bg-gray-900 border border-gray-800 rounded-lg p-5 space-y-3">
+            {% csrf_token %}
+            <h2 class="text-sm font-medium text-gray-400 mb-2">Paramètres de risque</h2>
+
+            <div>
+                <label class="block text-xs text-gray-500 mb-1">Risque par trade (%)</label>
+                <input type="number" step="0.1" name="risk_per_trade_percent" value="{{ risk_settings.risk_per_trade_percent }}"
+                       class="w-full bg-gray-950 border border-gray-800 rounded px-3 py-1.5 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs text-gray-500 mb-1">Risk Reward minimum</label>
+                <input type="number" step="0.1" name="min_risk_reward" value="{{ risk_settings.min_risk_reward }}"
+                       class="w-full bg-gray-950 border border-gray-800 rounded px-3 py-1.5 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs text-gray-500 mb-1">Positions max par setup</label>
+                <input type="number" name="max_positions_per_setup" value="{{ risk_settings.max_positions_per_setup }}"
+                       class="w-full bg-gray-950 border border-gray-800 rounded px-3 py-1.5 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs text-gray-500 mb-1">Pertes consécutives max</label>
+                <input type="number" name="max_consecutive_losses" value="{{ risk_settings.max_consecutive_losses }}"
+                       class="w-full bg-gray-950 border border-gray-800 rounded px-3 py-1.5 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs text-gray-500 mb-1">Drawdown journalier max (%)</label>
+                <input type="number" step="0.1" name="max_daily_drawdown_percent" value="{{ risk_settings.max_daily_drawdown_percent }}"
+                       class="w-full bg-gray-950 border border-gray-800 rounded px-3 py-1.5 text-sm">
+            </div>
+            <button type="submit" class="w-full py-2 rounded bg-emerald-600 hover:bg-emerald-500 text-sm font-medium mt-2">
+                Enregistrer
+            </button>
+        </form>
+    </div>
+
+    <a href="{% url 'risk:position_size_calculator' %}" class="inline-block mt-6 text-sm text-emerald-400 hover:underline">
+        → Calculateur de lot size
+    </a>
+</div>
+{% endblock %}

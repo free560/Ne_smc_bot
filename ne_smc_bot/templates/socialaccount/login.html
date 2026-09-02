@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Connexion via {{ account.get_provider.name }}{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Connexion via Google</h1>
+
+<p class="text-gray-300 mb-6">Tu es sur le point de te connecter avec ton compte Google.</p>
+
+<form method="post" class="mb-6">
+    {% csrf_token %}
+    <button type="submit" class="bg-accent text-black font-medium px-4 py-2 rounded hover:opacity-90">
+        Continuer
+    </button>
+</form>
+
+<p>
+    <a href="{% url 'account_login' %}" class="text-accent hover:underline">
+        Annuler et retourner à la connexion
+    </a>
+</p>
+{% endblock %}

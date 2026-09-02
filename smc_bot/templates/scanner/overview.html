@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Scanner de Marché - SMC RSI BOOM & CRASH 1000 PRO{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold">Scanner de Marché</h1>
+        <a href="{% url 'scanner:trigger_scan' %}"
+           class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium text-white transition">
+            Lancer un scan
+        </a>
+    </div>
+
+    <p class="text-sm text-gray-500 mb-6">
+        Dernière bougie en base par instrument / timeframe. Si une donnée est absente ou
+        ancienne
+    </p>
+
+    <div class="overflow-x-auto rounded-lg border border-gray-800">
+        <table class="w-full text-sm text-left">
+            <thead class="bg-gray-900 text-gray-400">
+                <tr>
+                    <th class="px-4 py-3">Instrument</th>
+                    <th class="px-4 py-3">Timeframe</th>
+                    <th class="px-4 py-3">Dernière bougie</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-800">
+                {% for row in status %}
+                    {% for tf, ts in row.timeframes %}
+                    <tr>
+                        {% if forloop.first %}
+                        <td class="px-4 py-3 font-medium" rowspan="{{ row.timeframes|length }}">{{ row.instrument }}</td>
+                        {% endif %}
+                        <td class="px-4 py-3 text-gray-400">{{ tf }}</td>
+                        <td class="px-4 py-3">
+                            {% if ts %}
+                                {{ ts|date:"d/m/Y H:i" }}
+                            {% else %}
+                                <span class="text-amber-400">Aucune donnée</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <a href="/market-data/" class="inline-block mt-6 text-sm text-emerald-400 hover:underline">
+        → Historique des récupérations (Market Data)
+    </a>
+</div>
+{% endblock %}

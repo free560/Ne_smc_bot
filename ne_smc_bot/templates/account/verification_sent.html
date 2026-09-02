@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Email envoyé{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4">
+    <div class="bg-panel border border-gray-700 shadow-lg rounded-xl p-8 max-w-md w-full text-center">
+
+        <h1 class="text-2xl font-bold mb-4">Vérifie ta boîte mail</h1>
+        <p class="text-gray-400 mb-4">
+            Nous t'avons envoyé un email de confirmation. Clique sur le lien qu'il contient pour finaliser ton inscription.
+        </p>
+        <p class="text-gray-400">
+            Rien reçu ? Vérifie tes spams, ou
+            <a href="{% url 'account_email' %}" class="text-accent hover:underline">gère tes emails ici</a>.
+        </p>
+
+    </div>
+</div>
+{% endblock %}

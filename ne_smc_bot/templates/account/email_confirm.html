@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Confirmation Email{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4">
+    <div class="bg-panel border border-gray-700 shadow-lg rounded-xl p-8 max-w-md w-full">
+
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-100">
+                Confirmation de l'email
+            </h1>
+        </div>
+
+        {% if confirmation %}
+
+            <p class="text-gray-400 text-center mb-6">
+                Veuillez confirmer que l'adresse email :
+            </p>
+
+            <div class="bg-gray-800 border border-gray-600 rounded-lg p-3 mb-6 text-center">
+                <strong class="text-accent">
+                    {{ confirmation.email_address.email }}
+                </strong>
+            </div>
+
+            <form method="post" action="{% url 'account_confirm_email' confirmation.key %}">
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="w-full bg-accent hover:opacity-90 text-black font-semibold py-3 rounded-lg transition">
+                    Confirmer mon email
+                </button>
+            </form>
+
+        {% else %}
+
+            <div class="text-center">
+                <p class="text-red-400 mb-4">
+                    Le lien de confirmation est invalide ou a expiré.
+                </p>
+
+                <a href="{% url 'account_email' %}"
+                   class="inline-block bg-gray-700 hover:bg-gray-600 text-white px-5 py-2 rounded-lg">
+                    Gérer mes emails
+                </a>
+            </div>
+
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Journal de Trading - SMC RSI BOOM & CRASH 1000 PRO{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold">Journal de Trading</h1>
+        <a href="{% url 'journal:create' %}" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium">
+            + Nouveau trade
+        </a>
+    </div>
+
+    <div class="overflow-x-auto rounded-lg border border-gray-800">
+        <table class="w-full text-sm text-left">
+            <thead class="bg-gray-900 text-gray-400">
+                <tr>
+                    <th class="px-4 py-3">Ouvert le</th>
+                    <th class="px-4 py-3">Instrument</th>
+                    <th class="px-4 py-3">Sens</th>
+                    <th class="px-4 py-3">Entry</th>
+                    <th class="px-4 py-3">RR</th>
+                    <th class="px-4 py-3">Résultat</th>
+                    <th class="px-4 py-3">PnL</th>
+                    <th class="px-4 py-3"></th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-800">
+                {% for entry in entries %}
+                <tr class="hover:bg-gray-900/50">
+                    <td class="px-4 py-3 text-gray-500">{{ entry.opened_at|date:"d/m/Y H:i" }}</td>
+                    <td class="px-4 py-3 font-medium">{{ entry.instrument }}</td>
+                    <td class="px-4 py-3">
+                        {% if entry.direction == "BUY" %}<span class="text-emerald-400">BUY</span>{% else %}<span class="text-rose-400">SELL</span>{% endif %}
+                    </td>
+                    <td class="px-4 py-3">{{ entry.entry }}</td>
+                    <td class="px-4 py-3">1:{{ entry.risk_reward }}</td>
+                    <td class="px-4 py-3">
+                        {% if entry.result == "WIN" %}<span class="text-emerald-400">Gagnant</span>
+                        {% elif entry.result == "LOSS" %}<span class="text-rose-400">Perdant</span>
+                        {% elif entry.result == "BREAKEVEN" %}<span class="text-gray-400">Break-even</span>
+                        {% else %}<span class="text-amber-400">Ouvert</span>{% endif %}
+                    </td>
+                    <td class="px-4 py-3">{{ entry.pnl|default:"—" }}</td>
+                    <td class="px-4 py-3 text-right space-x-2">
+                        <a href="{% url 'journal:update' entry.pk %}" class="text-gray-400 hover:text-emerald-400">Modifier</a>
+                        <a href="{% url 'journal:delete' entry.pk %}" class="text-gray-400 hover:text-rose-400">Suppr.</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8" class="px-4 py-6 text-center text-gray-600">Aucun trade enregistré.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

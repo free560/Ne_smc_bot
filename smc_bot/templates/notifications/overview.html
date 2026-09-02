@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Notifications - SMC RSI BOOM & CRASH 1000 PRO{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-2xl font-bold mb-6">Notifications</h1>
+
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+        <form method="post" class="bg-gray-900 border border-gray-800 rounded-lg p-5 space-y-3">
+            {% csrf_token %}
+            <h2 class="text-sm font-medium text-gray-400 mb-2">Canaux &amp; préférences</h2>
+
+            <label class="flex items-center gap-2 text-sm">
+                {{ form.telegram_enabled }} Activer Telegram
+            </label>
+            <label class="flex items-center gap-2 text-sm">
+                {{ form.email_enabled }} Activer Email
+            </label>
+            <div>
+                <label class="block text-xs text-gray-500 mb-1">Email (optionnel, sinon celui du compte)</label>
+                {{ form.email_override }}
+            </div>
+            <hr class="border-gray-800 my-2">
+            <label class="flex items-center gap-2 text-sm">
+                {{ form.notify_on_signal }} Nouveau signal
+            </label>
+            <label class="flex items-center gap-2 text-sm">
+                {{ form.notify_on_risk_alert }} Alertes risque (drawdown / pertes consécutives)
+            </label>
+            <label class="flex items-center gap-2 text-sm">
+                {{ form.notify_on_range_market }} Marché en range
+            </label>
+
+            <button type="submit" class="w-full py-2 rounded bg-emerald-600 hover:bg-emerald-500 text-sm font-medium mt-2">
+                Enregistrer
+            </button>
+            <p class="text-xs text-gray-600 mt-2">
+                Le chat_id Telegram se configure dans le profil (à venir) ;
+                pour l'instant renseigne-le via l'admin Django sur ton UserProfile.
+            </p>
+        </form>
+
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-5">
+            <h2 class="text-sm font-medium text-gray-400 mb-4">Historique récent</h2>
+            <div class="space-y-2 max-h-96 overflow-y-auto">
+                {% for log in logs %}
+                <div class="text-sm border-b border-gray-800 pb-2">
+                    <div class="flex justify-between">
+                        <span class="font-mono text-xs text-emerald-400">{{ log.event_type }}</span>
+                        <span class="text-xs text-gray-600">{{ log.created_at|date:"d/m H:i" }}</span>
+                    </div>
+                    <div class="text-gray-500 text-xs">
+                        {{ log.channel }} —
+                        {% if log.success %}<span class="text-emerald-400">envoyé</span>
+                        {% else %}<span class="text-rose-400">échec : {{ log.error_message }}</span>{% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center text-gray-600 py-8">Aucune notification pour l'instant.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

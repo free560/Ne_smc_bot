@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Market Data - SMC RSI BOOM & CRASH 1000 PRO{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-2xl font-bold mb-6">Market Data — Historique des récupérations</h1>
+
+    <div class="overflow-x-auto rounded-lg border border-gray-800">
+        <table class="w-full text-sm text-left">
+            <thead class="bg-gray-900 text-gray-400">
+                <tr>
+                    <th class="px-4 py-3">Date</th>
+                    <th class="px-4 py-3">Instrument</th>
+                    <th class="px-4 py-3">Timeframe</th>
+                    <th class="px-4 py-3">Statut</th>
+                    <th class="px-4 py-3">Bougies</th>
+                    <th class="px-4 py-3">Erreur</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-800">
+                {% for log in logs %}
+                <tr>
+                    <td class="px-4 py-3 text-gray-500">{{ log.created_at|date:"d/m H:i:s" }}</td>
+                    <td class="px-4 py-3">{{ log.instrument }}</td>
+                    <td class="px-4 py-3">{{ log.timeframe }}</td>
+                    <td class="px-4 py-3">
+                        {% if log.success %}<span class="text-emerald-400">OK</span>
+                        {% else %}<span class="text-rose-400">Échec</span>{% endif %}
+                    </td>
+                    <td class="px-4 py-3">{{ log.fetched_count|default:"—" }}</td>
+                    <td class="px-4 py-3 text-rose-400 text-xs">{{ log.error_message|truncatechars:60 }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="px-4 py-6 text-center text-gray-600">
+                    Aucune tentative pour l'instant. Lance <code class="text-emerald-400">python manage.py fetch_candles --all</code>.
+                </td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

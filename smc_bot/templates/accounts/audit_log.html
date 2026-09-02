@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Journal d'audit - SMC RSI BOOM & CRASH 1000 PRO{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-2xl font-bold mb-6">Journal d'audit</h1>
+    <div class="overflow-x-auto rounded-lg border border-gray-800">
+        <table class="w-full text-sm text-left">
+            <thead class="bg-gray-900 text-gray-400">
+                <tr>
+                    <th class="px-4 py-3">Date</th>
+                    <th class="px-4 py-3">Utilisateur</th>
+                    <th class="px-4 py-3">Action</th>
+                    <th class="px-4 py-3">IP</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-800">
+                {% for log in logs %}
+                <tr>
+                    <td class="px-4 py-3 text-gray-500">{{ log.created_at|date:"d/m/Y H:i:s" }}</td>
+                    <td class="px-4 py-3">{{ log.user.username|default:"système" }}</td>
+                    <td class="px-4 py-3 font-mono text-xs text-emerald-400">{{ log.action }}</td>
+                    <td class="px-4 py-3 text-gray-500">{{ log.ip_address|default:"—" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="px-4 py-6 text-center text-gray-600">Aucune entrée.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}Vue d'ensemble - SMC RSI BOOM & CRASH 1000 PRO{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-gray-100">Vue d'ensemble</h1>
+        <div class="flex gap-2">
+            {% for value, label in instruments %}
+            <a href="?instrument={{ value }}"
+               class="px-3 py-1.5 rounded-full text-xs {% if selected_instrument == value %}bg-emerald-600 text-white{% else %}bg-gray-900 text-gray-400 border border-gray-800{% endif %}">
+                {{ label }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+            <div class="text-gray-500 text-xs mb-1">Signaux totaux</div>
+            <div class="text-2xl font-bold">{{ stats.total_signals }}</div>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+            <div class="text-gray-500 text-xs mb-1">BUY</div>
+            <div class="text-2xl font-bold text-emerald-400">{{ stats.buy_signals }}</div>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+            <div class="text-gray-500 text-xs mb-1">SELL</div>
+            <div class="text-2xl font-bold text-rose-400">{{ stats.sell_signals }}</div>
+        </div>
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+            <div class="text-gray-500 text-xs mb-1">NO TRADE</div>
+            <div class="text-2xl font-bold text-gray-400">{{ stats.no_trade_signals }}</div>
+        </div>
+    </div>
+
+    {% if not has_candles %}
+        <div class="text-center py-16 text-gray-500 border border-gray-800 rounded-lg">
+            Aucune donnée de marché pour {{ selected_instrument }}. Lance
+            <code class="text-emerald-400">python manage.py fetch_candles --all</code>
+            pour récupérer l'historique depuis Deriv.
+        </div>
+    {% else %}
+    <div class="bg-gray-900 border border-gray-800 rounded-lg p-4 mb-8">
+        <h2 class="text-sm font-medium text-gray-400 mb-4">Prix &amp; RSI (M1) — {{ selected_instrument }}</h2>
+        <canvas id="priceRsiChart" height="90"></canvas>
+    </div>
+    {% endif %}
+
+    <h2 class="text-sm font-medium text-gray-400 mb-3">Derniers signaux — {{ selected_instrument }}</h2>
+    <div class="overflow-x-auto rounded-lg border border-gray-800">
+        <table class="w-full text-sm text-left">
+            <thead class="bg-gray-900 text-gray-400">
+                <tr>
+                    <th class="px-4 py-3">Date</th>
+                    <th class="px-4 py-3">Signal</th>
+                    <th class="px-4 py-3">Scénario</th>
+                    <th class="px-4 py-3">Confiance</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-800">
+                {% for r in latest_signals %}
+                <tr>
+                    <td class="px-4 py-3 text-gray-500">{{ r.generated_at|date:"d/m H:i" }}</td>
+                    <td class="px-4 py-3">
+                        {% if r.direction == "BUY" %}
+                            <span class="text-emerald-400 font-semibold">BUY</span>
+                        {% elif r.direction == "SELL" %}
+                            <span class="text-rose-400 font-semibold">SELL</span>
+                        {% else %}
+                            <span class="text-gray-500 font-semibold">NO TRADE</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-3 text-gray-500">{{ r.scenario|default:"—" }}</td>
+                    <td class="px-4 py-3">{% if r.confidence_score %}{{ r.confidence_score }}%{% else %}—{% endif %}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="px-4 py-6 text-center text-gray-600">Aucun signal pour cet instrument.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{% if has_candles %}
+<script>
+const chartData = {{ chart_data_json|safe }};
+const ctx = document.getElementById('priceRsiChart');
+
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: chartData.labels,
+        datasets: [
+            {
+                label: 'Prix',
+                data: chartData.prices,
+                borderColor: '#34d399',
+                backgroundColor: 'transparent',
+                yAxisID: 'y',
+                tension: 0.15,
+                pointRadius: 0,
+            },
+            {
+                label: 'RSI (14)',
+                data: chartData.rsi,
+                borderColor: '#f59e0b',
+                backgroundColor: 'transparent',
+                yAxisID: 'y1',
+                tension: 0.15,
+                pointRadius: 0,
+            },
+        ],
+    },
+    options: {
+        responsive: true,
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+            y: {
+                type: 'linear',
+                position: 'left',
+                grid: { color: '#1f2937' },
+                ticks: { color: '#9ca3af' },
+            },
+            y1: {
+                type: 'linear',
+                position: 'right',
+                min: 0,
+                max: 100,
+                grid: { drawOnChartArea: false },
+                ticks: { color: '#9ca3af' },
+            },
+            x: {
+                grid: { color: '#1f2937' },
+                ticks: { color: '#9ca3af', maxTicksLimit: 10 },
+            },
+        },
+        plugins: {
+            legend: { labels: { color: '#d1d5db' } },
+        },
+    },
+});
+</script>
+{% endif %}
+{% endblock %}

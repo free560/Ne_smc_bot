@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Calculateur de Lot Size - SMC RSI BOOM & CRASH 1000 PRO{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto">
+    <h1 class="text-2xl font-bold mb-6">Calculateur de Lot Size</h1>
+
+    <form method="post" class="bg-gray-900 border border-gray-800 rounded-lg p-5 space-y-3">
+        {% csrf_token %}
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Entry</label>
+            <input type="number" step="0.00001" name="entry" required class="w-full bg-gray-950 border border-gray-800 rounded px-3 py-1.5 text-sm">
+        </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Stop Loss</label>
+            <input type="number" step="0.00001" name="stop_loss" required class="w-full bg-gray-950 border border-gray-800 rounded px-3 py-1.5 text-sm">
+        </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Risque (%)</label>
+            <input type="number" step="0.1" name="risk_percent" value="1" class="w-full bg-gray-950 border border-gray-800 rounded px-3 py-1.5 text-sm">
+        </div>
+        <button type="submit" class="w-full py-2 rounded bg-emerald-600 hover:bg-emerald-500 text-sm font-medium">
+            Calculer
+        </button>
+    </form>
+
+    {% if result %}
+    <div class="mt-6 bg-gray-900 border border-gray-800 rounded-lg p-5 text-sm space-y-2">
+        {% if result.warning %}
+            <div class="text-amber-400">{{ result.warning }}</div>
+        {% else %}
+            <div class="flex justify-between"><span class="text-gray-500">Lot size recommandé</span><span class="text-emerald-400 font-semibold">{{ result.lot_size }}</span></div>
+            <div class="flex justify-between"><span class="text-gray-500">Montant risqué</span><span>{{ result.risk_amount }}</span></div>
+            <div class="flex justify-between"><span class="text-gray-500">Distance SL</span><span>{{ result.stop_loss_distance }}</span></div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

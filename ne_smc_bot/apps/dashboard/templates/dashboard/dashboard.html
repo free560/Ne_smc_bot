@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Dashboard</h1>
+
+{% if not has_broker_account %}
+    <div class="bg-red-900 text-red-200 px-4 py-3 rounded mb-6">
+        Aucun compte broker connecté. <a href="{% url 'broker_management' %}" class="underline">Connecte-en un ici</a>.
+    </div>
+{% endif %}
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-panel border border-gray-700 rounded-lg p-4">
+        <p class="text-xs uppercase text-gray-400 tracking-wide">Solde</p>
+        <p class="text-2xl font-bold text-accent">${{ balance }}</p>
+    </div>
+    <div class="bg-panel border border-gray-700 rounded-lg p-4">
+        <p class="text-xs uppercase text-gray-400 tracking-wide">Équité</p>
+        <p class="text-2xl font-bold text-accent">${{ equity }}</p>
+    </div>
+    <div class="bg-panel border border-gray-700 rounded-lg p-4">
+        <p class="text-xs uppercase text-gray-400 tracking-wide">PNL Journalier</p>
+        <p class="text-2xl font-bold {% if daily_pnl >= 0 %}text-green-400{% else %}text-red-400{% endif %}">${{ daily_pnl }}</p>
+    </div>
+    <div class="bg-panel border border-gray-700 rounded-lg p-4">
+        <p class="text-xs uppercase text-gray-400 tracking-wide">PNL Hebdomadaire</p>
+        <p class="text-2xl font-bold {% if weekly_pnl >= 0 %}text-green-400{% else %}text-red-400{% endif %}">${{ weekly_pnl }}</p>
+    </div>
+    <div class="bg-panel border border-gray-700 rounded-lg p-4">
+        <p class="text-xs uppercase text-gray-400 tracking-wide">PNL Mensuel</p>
+        <p class="text-2xl font-bold {% if monthly_pnl >= 0 %}text-green-400{% else %}text-red-400{% endif %}">${{ monthly_pnl }}</p>
+    </div>
+    <div class="bg-panel border border-gray-700 rounded-lg p-4">
+        <p class="text-xs uppercase text-gray-400 tracking-wide">Win Rate</p>
+        <p class="text-2xl font-bold text-accent">{% if win_rate is not None %}{{ win_rate }}%{% else %}—{% endif %}</p>
+    </div>
+    <div class="bg-panel border border-gray-700 rounded-lg p-4">
+        <p class="text-xs uppercase text-gray-400 tracking-wide">Profit Factor</p>
+        <p class="text-2xl font-bold text-accent">{% if profit_factor is not None %}{{ profit_factor }}{% else %}—{% endif %}</p>
+    </div>
+    <div class="bg-panel border border-gray-700 rounded-lg p-4">
+        <p class="text-xs uppercase text-gray-400 tracking-wide">Max Drawdown</p>
+        <p class="text-2xl font-bold text-accent">{% if max_drawdown is not None %}${{ max_drawdown }}{% else %}—{% endif %}</p>
+    </div>
+</div>
+
+<!-- Positions ouvertes -->
+<div class="bg-panel border border-gray-700 rounded-lg p-5 mb-8">
+    <h2 class="text-lg font-semibold mb-4">Positions ouvertes ({{ open_positions_count }})</h2>
+    {% if open_positions %}
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse">
+                <tr class="border-b border-gray-700 text-gray-400 text-sm">
+                    <th class="text-left p-2 whitespace-nowrap">Symbole</th>
+                    <th class="text-left p-2 whitespace-nowrap">Direction</th>
+                    <th class="text-left p-2 whitespace-nowrap">Entry</th>
+                    <th class="text-left p-2 whitespace-nowrap">Prix actuel</th>
+                    <th class="text-left p-2 whitespace-nowrap">PNL</th>
+                    <th class="text-left p-2 whitespace-nowrap">SL</th>
+                    <th class="text-left p-2 whitespace-nowrap">TP</th>
+                </tr>
+                {% for position in open_positions %}
+                <tr class="border-b border-gray-800">
+                    <td class="p-2 whitespace-nowrap">{{ position.order.symbol }}</td>
+                    <td class="p-2 whitespace-nowrap {% if position.order.direction == 'buy' %}text-green-400{% else %}text-red-400{% endif %} uppercase text-sm font-medium">
+                        {{ position.order.direction }}
+                    </td>
+                    <td class="p-2 whitespace-nowrap">{{ position.order.entry_price }}</td>
+                    <td class="p-2 whitespace-nowrap">{{ position.current_price }}</td>
+                    <td class="p-2 whitespace-nowrap {% if position.pnl >= 0 %}text-green-400{% else %}text-red-400{% endif %}">${{ position.pnl }}</td>
+                    <td class="p-2 whitespace-nowrap text-gray-400">{{ position.current_stop_loss|default:position.order.stop_loss }}</td>
+                    <td class="p-2 whitespace-nowrap text-gray-400">{{ position.order.take_profit }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% else %}
+        <p class="text-gray-400">Aucune position ouverte actuellement.</p>
+    {% endif %}
+</div>
+
+<!-- Derniers signaux -->
+<div class="bg-panel border border-gray-700 rounded-lg p-5">
+    <h2 class="text-lg font-semibold mb-4">Derniers signaux</h2>
+    {% if recent_signals %}
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse">
+                <tr class="border-b border-gray-700 text-gray-400 text-sm">
+                    <th class="text-left p-2 whitespace-nowrap">Symbole</th>
+                    <th class="text-left p-2 whitespace-nowrap">Direction</th>
+                    <th class="text-left p-2 whitespace-nowrap">Entry</th>
+                    <th class="text-left p-2 whitespace-nowrap">RR</th>
+                    <th class="text-left p-2 whitespace-nowrap">Confiance</th>
+                    <th class="text-left p-2 whitespace-nowrap">Date</th>
+                </tr>
+                {% for signal in recent_signals %}
+                <tr class="border-b border-gray-800">
+                    <td class="p-2 whitespace-nowrap">{{ signal.symbol }}</td>
+                    <td class="p-2 whitespace-nowrap {% if signal.direction == 'buy' %}text-green-400{% else %}text-red-400{% endif %} uppercase text-sm font-medium">
+                        {{ signal.direction }}
+                    </td>
+                    <td class="p-2 whitespace-nowrap">{{ signal.entry_price }}</td>
+                    <td class="p-2 whitespace-nowrap">{{ signal.risk_reward }}</td>
+                    <td class="p-2 whitespace-nowrap">{{ signal.confidence_score }}/100</td>
+                    <td class="p-2 whitespace-nowrap text-gray-400 text-sm">{{ signal.created_at|date:"d/m H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% else %}
+        <p class="text-gray-400">Aucun signal généré pour l'instant.</p>
+    {% endif %}
+</div>
+{% endblock %}

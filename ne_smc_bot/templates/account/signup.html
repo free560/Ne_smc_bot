@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load socialaccount %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center px-4 py-8 mb-20 md:mb-0">
+    <div class="bg-panel border border-gray-700 shadow-lg rounded-xl p-8 max-w-md w-full">        
+
+        <h1 class="text-2xl font-bold mb-6 text-center">Créer un compte</h1>
+
+        {% if form.errors %}
+            <div class="bg-red-900 text-red-200 px-4 py-3 rounded mb-4">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div id="js-error" class="bg-red-900 text-red-200 px-4 py-3 rounded mb-4 hidden"></div>
+
+        <button type="button" id="show-email-form-btn"
+            class="w-full bg-accent text-black font-semibold py-3 rounded-lg hover:opacity-90 transition mb-3">
+            S'inscrire avec email
+        </button>
+
+        <a href="{% provider_login_url 'google' %}" class="block">
+            <button type="button"
+                class="w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 rounded-lg transition">
+                S'inscrire avec Google
+            </button>
+        </a>
+
+        <div id="email-signup-form" class="hidden mt-6">
+            <form method="post" action="{% url 'account_signup' %}" id="signup-form">
+                {% csrf_token %}
+
+                <!-- Étape 1 : Email -->
+                <div class="step" id="step-1">
+                    <label for="id_email" class="block text-sm text-gray-400 mb-1">Email</label>
+                    <input type="email" name="email" id="id_email" required
+                        class="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded w-full mb-4">
+                    <button type="button" class="next-btn w-full bg-accent text-black font-semibold py-3 rounded-lg hover:opacity-90 transition"
+                        data-current="1" data-next="2">
+                        Suivant
+                    </button>
+                </div>
+
+                <!-- Étape 2 : Nom et prénom -->
+                <div class="step hidden" id="step-2">
+                    <label for="id_first_name" class="block text-sm text-gray-400 mb-1">Prénom</label>
+                    <input type="text" name="first_name" id="id_first_name" required
+                        class="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded w-full mb-4">
+
+                    <label for="id_last_name" class="block text-sm text-gray-400 mb-1">Nom</label>
+                    <input type="text" name="last_name" id="id_last_name" required
+                        class="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded w-full mb-4">
+
+                    <div class="flex justify-between gap-3">
+                        <button type="button" class="prev-btn flex-1 bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 rounded-lg transition"
+                            data-current="2" data-prev="1">
+                            Précédent
+                        </button>
+                        <button type="button" class="next-btn flex-1 bg-accent text-black font-semibold py-3 rounded-lg hover:opacity-90 transition"
+                            data-current="2" data-next="3">
+                            Suivant
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Étape 3 : Mot de passe -->
+                <div class="step hidden" id="step-3">
+                    <label for="id_password1" class="block text-sm text-gray-400 mb-1">Mot de passe</label>
+                    <input type="password" name="password1" id="id_password1" required
+                        class="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded w-full mb-4">
+
+                    <label for="id_password2" class="block text-sm text-gray-400 mb-1">Confirmer le mot de passe</label>
+                    <input type="password" name="password2" id="id_password2" required
+                        class="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded w-full mb-4">
+
+                    <div class="flex justify-between gap-3">
+                        <button type="button" class="prev-btn flex-1 bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 rounded-lg transition"
+                            data-current="3" data-prev="2">
+                            Précédent
+                        </button>
+                        <button type="submit" class="flex-1 bg-accent text-black font-semibold py-3 rounded-lg hover:opacity-90 transition">
+                            S'inscrire
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <p class="text-center text-gray-400 mt-6">
+            Déjà un compte ?
+            <a href="{% url 'account_login' %}" class="text-accent hover:underline">Se connecter</a>
+        </p>
+
+    </div>
+</div>
+
+<script>
+document.getElementById('show-email-form-btn').addEventListener('click', function () {
+    document.getElementById('email-signup-form').classList.remove('hidden');
+    this.classList.add('hidden');
+});
+
+function showStep(stepNumber) {
+    document.querySelectorAll('.step').forEach(function (el) {
+        el.classList.add('hidden');
+    });
+    document.getElementById('step-' + stepNumber).classList.remove('hidden');
+}
+
+function showError(message) {
+    var errorBox = document.getElementById('js-error');
+    errorBox.textContent = message;
+    errorBox.classList.remove('hidden');
+}
+
+function hideError() {
+    document.getElementById('js-error').classList.add('hidden');
+}
+
+document.querySelectorAll('.next-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        hideError();
+        var currentStep = document.getElementById('step-' + this.dataset.current);
+        var inputs = currentStep.querySelectorAll('input[required]');
+        for (var i = 0; i < inputs.length; i++) {
+            if (!inputs[i].checkValidity()) {
+                inputs[i].reportValidity();
+                return;
+            }
+        }
+        showStep(this.dataset.next);
+    });
+});
+
+document.querySelectorAll('.prev-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        hideError();
+        showStep(this.dataset.prev);
+    });
+});
+
+document.getElementById('signup-form').addEventListener('submit', function (e) {
+    hideError();
+    var password1 = document.getElementById('id_password1').value;
+    var password2 = document.getElementById('id_password2').value;
+
+    if (password1 !== password2) {
+        e.preventDefault();
+        showError('Les mots de passe ne correspondent pas.');
+    }
+});
+</script>
+{% endblock %}
